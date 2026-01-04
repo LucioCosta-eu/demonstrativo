@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Executivo - Gestão à Vista de Obras | SANGLASS</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0e27;
+            color: #e4e7eb;
+            line-height: 1.6;
+        }
+
+        .page-wrapper {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0a0e27 100%);
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background: #151934;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            padding: 40px 50px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23ffffff" opacity="0.03" width="100" height="100"/></svg>');
+            background-size: 20px 20px;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 500;
+        }
+
+        .header .meta {
+            margin-top: 20px;
+            display: flex;
+            gap: 30px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            padding: 40px 50px;
+            background: #0f1229;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #1a1f3a 0%, #151934 100%);
+            padding: 28px;
+            border-radius: 12px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent-color);
+            transition: width 0.3s ease;
+        }
+
+        .stat-card:hover::before {
+            width: 100%;
+            opacity: 0.1;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-color);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-card.total { --accent-color: #3b82f6; }
+        .stat-card.concluido { --accent-color: #10b981; }
+        .stat-card.andamento { --accent-color: #f59e0b; }
+        .stat-card.nao-iniciado { --accent-color: #ef4444; }
+
+        .stat-card h3 {
+            font-size: 0.75em;
+            color: #94a3b8;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+        }
+
+        .stat-card .value {
+            font-size: 3em;
+            font-weight: 700;
+            color: var(--accent-color);
+            line-height: 1;
+            margin-bottom: 8px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .stat-card .label {
+            font-size: 0.9em;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .content {
+            padding: 40px 50px;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            margin-bottom: 30px;
+            color: #e4e7eb;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 32px;
+            background: linear-gradient(180deg, #3b82f6 0%, #1e3a8a 100%);
+            border-radius: 2px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            background: #1a1f3a;
+            border-radius: 12px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            margin-bottom: 40px;
+        }
+
+        .projects-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1400px;
+        }
+
+        .projects-table thead {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .projects-table th {
+            padding: 18px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.75em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.95);
+            border-bottom: 2px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .projects-table th[colspan] {
+            text-align: center;
+            background: #1e40af;
+        }
+
+        .projects-table tbody tr {
+            border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+            transition: background 0.2s ease;
+        }
+
+        .projects-table tbody tr:hover {
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .projects-table tbody tr.highlight-row {
+            background: rgba(251, 191, 36, 0.1);
+            border-left: 4px solid #f59e0b;
+        }
+
+        .projects-table tbody tr.highlight-row:hover {
+            background: rgba(251, 191, 36, 0.15);
+        }
+
+        .projects-table td {
+            padding: 16px;
+            color: #cbd5e1;
+            font-size: 0.9em;
+        }
+
+        .project-code {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: #60a5fa;
+            font-size: 0.95em;
+        }
+
+        .project-name {
+            font-weight: 600;
+            color: #e4e7eb;
+        }
+
+        .project-scope {
+            color: #94a3b8;
+            font-size: 0.85em;
+        }
+
+        .phase-cell {
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 0.85em;
+        }
+
+        .phase-100 { color: #10b981; }
+        .phase-90-99 { color: #34d399; }
+        .phase-80-89 { color: #fbbf24; }
+        .phase-60-79 { color: #fb923c; }
+        .phase-40-59 { color: #f87171; }
+        .phase-1-39 { color: #ef4444; }
+        .phase-0 { color: #64748b; }
+        .phase-na { color: #475569; font-style: italic; }
+
+        .progress-bar {
+            width: 100%;
+            height: 32px;
+            background: rgba(30, 58, 138, 0.3);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .progress-fill {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.75em;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .progress-fill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-fill.high {
+            background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+        }
+
+        .progress-fill.medium {
+            background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .progress-fill.low {
+            background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.7em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid;
+        }
+
+        .status-badge.concluido {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .status-badge.alto {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .status-badge.medio {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        .status-badge.critico {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border-color: rgba(239, 68, 68, 0.3);
+            animation: pulse-glow 2s infinite;
+        }
+
+        .status-badge.nao-iniciado {
+            background: rgba(100, 116, 139, 0.15);
+            color: #94a3b8;
+            border-color: rgba(100, 116, 139, 0.3);
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            50% { box-shadow: 0 0 12px 4px rgba(239, 68, 68, 0.2); }
+        }
+
+        .phase-analysis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .phase-card {
+            background: linear-gradient(135deg, #1a1f3a 0%, #151934 100%);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .phase-card:hover {
+            transform: translateY(-4px);
+            border-color: #3b82f6;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
+        }
+
+        .phase-card h4 {
+            color: #94a3b8;
+            margin-bottom: 16px;
+            font-size: 0.8em;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+        }
+
+        .phase-card .percentage {
+            font-size: 2.8em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .phase-card .status-text {
+            font-size: 0.75em;
+            color: #64748b;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        .alert-box {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-left: 4px solid #ef4444;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .alert-box h3 {
+            color: #fca5a5;
+            margin-bottom: 16px;
+            font-size: 1.1em;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .alert-box ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .alert-box li {
+            padding: 10px 0;
+            color: #e4e7eb;
+            line-height: 1.6;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .alert-box li::before {
+            content: '⚠';
+            color: #f59e0b;
+            font-size: 1.2em;
+            flex-shrink: 0;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-left: 4px solid #3b82f6;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .info-box h3 {
+            color: #93c5fd;
+            margin-bottom: 16px;
+            font-size: 1.1em;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-box ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info-box li {
+            padding: 10px 0;
+            color: #cbd5e1;
+            line-height: 1.6;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .info-box li::before {
+            content: '•';
+            color: #3b82f6;
+            font-size: 1.5em;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .footer {
+            background: #0f1229;
+            padding: 30px 50px;
+            text-align: center;
+            color: #64748b;
+            border-top: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .footer p {
+            margin: 8px 0;
+            font-size: 0.9em;
+        }
+
+        .footer strong {
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .page-wrapper {
+                background: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+            }
+
+            .stat-card:hover,
+            .phase-card:hover,
+            .projects-table tbody tr:hover {
+                transform: none;
+                box-shadow: none;
+            }
+
+            @page {
+                size: A3 landscape;
+                margin: 1cm;
+            }
+        }
+
+        @media (max-width: 1400px) {
+            .header {
+                padding: 30px 30px;
+            }
+
+            .stats-grid,
+            .content {
+                padding: 30px 30px;
+            }
+
+            .footer {
+                padding: 20px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <div class="container">
+            <div class="header">
+                <div class="header-content">
+                    <h1>Dashboard Executivo de Obras</h1>
+                    <p>SANGLASS Engenharia | Controle Detalhado de Fases e Entregas</p>
+                    <div class="meta">
+                        <span>📅 Atualização: 10/12/2025</span>
+                        <span>📊 Revisão: 07</span>
+                        <span>🏗️ 34 Projetos Ativos</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card total">
+                    <h3>Total de Projetos</h3>
+                    <div class="value">34</div>
+                    <div class="label">Projetos em carteira</div>
+                </div>
+                <div class="stat-card concluido">
+                    <h3>Concluídos</h3>
+                    <div class="value">3</div>
+                    <div class="label">100% finalizados</div>
+                </div>
+                <div class="stat-card andamento">
+                    <h3>Aguardando Termo</h3>
+                    <div class="value">3</div>
+                    <div class="label">98% - Falta documentação</div>
+                </div>
+                <div class="stat-card andamento">
+                    <h3>Em Andamento</h3>
+                    <div class="value">19</div>
+                    <div class="label">Execução ativa</div>
+                </div>
+                <div class="stat-card nao-iniciado">
+                    <h3>Não Iniciados</h3>
+                    <div class="value">6</div>
+                    <div class="label">Aguardando mobilização</div>
+                </div>
+                <div class="stat-card total">
+                    <h3>Progresso Médio</h3>
+                    <div class="value">84%</div>
+                    <div class="label">Performance geral</div>
+                </div>
+            </div>
+
+            <div class="content">
+                <h2 class="section-title">Análise por Fases de Execução</h2>
+                <div class="phase-analysis">
+                    <div class="phase-card">
+                        <h4>1. Mobilização</h4>
+                        <div class="percentage">89%</div>
+                        <div class="status-text">Concluída</div>
+                    </div>
+                    <div class="phase-card">
+                        <h4>2. Estrutura</h4>
+                        <div class="percentage">84%</div>
+                        <div class="status-text">Concluída</div>
+                    </div>
+                    <div class="phase-card">
+                        <h4>3. Vidros</h4>
+                        <div class="percentage">80%</div>
+                        <div class="status-text">Em Andamento</div>
+                    </div>
+                    <div class="phase-card">
+                        <h4>4. Acessórios</h4>
+                        <div class="percentage">79%</div>
+                        <div class="status-text">Em Andamento</div>
+                    </div>
+                    <div class="phase-card">
+                        <h4>5. Encerramento</h4>
+                        <div class="percentage">78%</div>
+                        <div class="status-text">Em Andamento</div>
+                    </div>
+                </div>
+
+                <h2 class="section-title">Detalhamento Completo por Projeto e Fase</h2>
+                
+                <div class="table-container">
+                    <table class="projects-table">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" style="min-width: 80px;">WV</th>
+                                <th rowspan="2" style="min-width: 200px;">Projeto</th>
+                                <th rowspan="2" style="min-width: 250px;">Escopo</th>
+                                <th colspan="5">Fases de Execução (%)</th>
+                                <th rowspan="2" style="min-width: 140px;">Progresso Total</th>
+                                <th rowspan="2" style="min-width: 110px;">Status</th>
+                            </tr>
+                            <tr>
+                                <th style="min-width: 90px;">Mobilização</th>
+                                <th style="min-width: 90px;">Estrutura</th>
+                                <th style="min-width: 90px;">Vidros</th>
+                                <th style="min-width: 90px;">Acessórios</th>
+                                <th style="min-width: 100px;">Encerramento</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="project-code">4759</td>
+                                <td class="project-name">PA - VALE</td>
+                                <td class="project-scope">Pele de Vidro; ACM; Guilhotina</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td><div class="progress-bar"><div class="progress-fill high" style="width: 100%;">100%</div></div></td>
+                                <td><span class="status-badge concluido">✓ Concluído</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">7056</td>
+                                <td class="project-name">BRACELL</td>
+                                <td class="project-scope">Grid - 5 Pav. + Fachada em Anexos</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-90-99">90%</td>
+                                <td class="phase-cell phase-90-99">90%</td>
+                                <td class="phase-cell phase-90-99">90%</td>
+                                <td><div class="progress-bar"><div class="progress-fill high" style="width: 94%;">94%</div></div></td>
+                                <td><span class="status-badge alto">Alto</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">1062</td>
+                                <td class="project-name">BRADESCO</td>
+                                <td class="project-scope">Pele de Vidro; Esquadrias</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-90-99">90%</td>
+                                <td class="phase-cell phase-90-99">90%</td>
+                                <td class="phase-cell phase-90-99">90%</td>
+                                <td><div class="progress-bar"><div class="progress-fill high" style="width: 94%;">94%</div></div></td>
+                                <td><span class="status-badge alto">Alto</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">12304</td>
+                                <td class="project-name">EMERSON</td>
+                                <td class="project-scope">Fachada Grid; Esquadrias</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-90-99">95%</td>
+                                <td class="phase-cell phase-90-99">95%</td>
+                                <td class="phase-cell phase-90-99">95%</td>
+                                <td class="phase-cell phase-90-99">95%</td>
+                                <td><div class="progress-bar"><div class="progress-fill high" style="width: 96%;">96%</div></div></td>
+                                <td><span class="status-badge alto">Alto</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">10257</td>
+                                <td class="project-name">UBERLÂNDIA</td>
+                                <td class="project-scope">Pele de Vidro; Grid; Esquadria; Guarda-Corpo</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-80-89">86%</td>
+                                <td class="phase-cell phase-80-89">86%</td>
+                                <td class="phase-cell phase-80-89">86%</td>
+                                <td class="phase-cell phase-80-89">86%</td>
+                                <td><div class="progress-bar"><div class="progress-fill high" style="width: 89%;">89%</div></div></td>
+                                <td><span class="status-badge alto">Alto</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">11873</td>
+                                <td class="project-name">BYD</td>
+                                <td class="project-scope">Spider Glass</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td><div class="progress-bar"><div class="progress-fill high" style="width: 100%;">100%</div></div></td>
+                                <td><span class="status-badge concluido">✓ Concluído</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">11470</td>
+                                <td class="project-name">MIGUEL DE CERVANTES 01</td>
+                                <td class="project-scope">Fachada Grid; Cobertura; Esquadrias</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-90-99">90%</td>
+                                <td class="phase-cell phase-90-99">90%</td>
+                                <td><div class="progress-bar"><div class="progress-fill high" style="width: 96%;">96%</div></div></td>
+                                <td><span class="status-badge alto">Alto</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">11470/1</td>
+                                <td class="project-name">MIGUEL DE CERVANTES 02</td>
+                                <td class="project-scope">Guarda-Corpos</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-80-89">80%</td>
+                                <td class="phase-cell phase-80-89">80%</td>
+                                <td class="phase-cell phase-80-89">80%</td>
+                                <td class="phase-cell phase-80-89">80%</td>
+                                <td><div class="progress-bar"><div class="progress-fill medium" style="width: 84%;">84%</div></div></td>
+                                <td><span class="status-badge alto">Alto</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">11435</td>
+                                <td class="project-name">SAFRA - HELIPONTO</td>
+                                <td class="project-scope">Pele de Vidro</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td><div class="progress-bar"><div class="progress-fill low" style="width: 1%;">0%</div></div></td>
+                                <td><span class="status-badge nao-iniciado">⚠ Não Iniciado</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">7997</td>
+                                <td class="project-name">GOLF CLUB</td>
+                                <td class="project-scope">Guarda-Corpo; Esquadrias</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-1-39">20%</td>
+                                <td class="phase-cell phase-1-39">20%</td>
+                                <td class="phase-cell phase-1-39">20%</td>
+                                <td class="phase-cell phase-1-39">20%</td>
+                                <td><div class="progress-bar"><div class="progress-fill low" style="width: 36%;">36%</div></div></td>
+                                <td><span class="status-badge medio">Médio</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">2998</td>
+                                <td class="project-name">SINAGOGA</td>
+                                <td class="project-scope">Guarda-Corpo; Esquadrias</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-90-99">95%</td>
+                                <td class="phase-cell phase-90-99">95%</td>
+                                <td class="phase-cell phase-90-99">95%</td>
+                                <td><div class="progress-bar"><div class="progress-fill high" style="width: 97%;">97%</div></div></td>
+                                <td><span class="status-badge alto">Alto</span></td>
+                            </tr>
+                            <tr class="highlight-row">
+                                <td class="project-code">11902</td>
+                                <td class="project-name">SHOPPING TIJUCA</td>
+                                <td class="project-scope">Fachada Grid; Pele de Vidro; Esquadrias; Guarda-Corpo</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-80-89">80%</td>
+                                <td class="phase-cell phase-80-89">80%</td>
+                                <td class="phase-cell phase-80-89">80%</td>
+                                <td class="phase-cell phase-80-89">80%</td>
+                                <td><div class="progress-bar"><div class="progress-fill medium" style="width: 84%;">84%</div></div></td>
+                                <td><span class="status-badge critico">🔥 Crítico</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">12021</td>
+                                <td class="project-name">MATO GROSSO - PONTA PORÃ - FASE 01</td>
+                                <td class="project-scope">Esquadrias; Revisão de Caixilhos; Pele de Vidro</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td><div class="progress-bar"><div class="progress-fill high" style="width: 100%;">100%</div></div></td>
+                                <td><span class="status-badge concluido">✓ Concluído</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">12021</td>
+                                <td class="project-name">MATO GROSSO - PONTA PORÃ - FASE 02</td>
+                                <td class="project-scope">Esquadrias; Revisão de Caixilhos; Pele de Vidro</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td><div class="progress-bar"><div class="progress-fill low" style="width: 1%;">0%</div></div></td>
+                                <td><span class="status-badge nao-iniciado">⚠ Não Iniciado</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">12021</td>
+                                <td class="project-name">MATO GROSSO - CAMPO GRANDE - FASE 02</td>
+                                <td class="project-scope">Esquadrias; Revisão de Caixilhos; Pele de Vidro</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-1-39">3%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td><div class="progress-bar"><div class="progress-fill low" style="width: 21%;">21%</div></div></td>
+                                <td><span class="status-badge medio">Baixo</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">12021</td>
+                                <td class="project-name">MATO GROSSO - CORUMBÁ - FASE 03</td>
+                                <td class="project-scope">Esquadrias; Revisão de Caixilhos</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td><div class="progress-bar"><div class="progress-fill low" style="width: 1%;">0%</div></div></td>
+                                <td><span class="status-badge nao-iniciado">⚠ Não Iniciado</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">8708</td>
+                                <td class="project-name">ISMD</td>
+                                <td class="project-scope">Cobertura; Pele de Vidro; Guarda-Corpo</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td><div class="progress-bar"><div class="progress-fill high" style="width: 100%;">100%</div></div></td>
+                                <td><span class="status-badge concluido">✓ Concluído</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">10365</td>
+                                <td class="project-name">LUCIANA MAESTROSA</td>
+                                <td class="project-scope">Pele de Vidro; Esquadrias</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-90-99">90%</td>
+                                <td class="phase-cell phase-90-99">90%</td>
+                                <td class="phase-cell phase-90-99">90%</td>
+                                <td><div class="progress-bar"><div class="progress-fill high" style="width: 94%;">94%</div></div></td>
+                                <td><span class="status-badge alto">Alto</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">9943</td>
+                                <td class="project-name">TRANSKOTHE/1 (ADITIVO)</td>
+                                <td class="project-scope">Pele de Vidro</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td><div class="progress-bar"><div class="progress-fill medium" style="width: 40%;">40%</div></div></td>
+                                <td><span class="status-badge medio">Médio</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">9943</td>
+                                <td class="project-name">TRANSKOTHE</td>
+                                <td class="project-scope">Pele de Vidro</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-90-99">98%</td>
+                                <td><div class="progress-bar"><div class="progress-fill high" style="width: 100%;">100%</div></div></td>
+                                <td><span class="status-badge alto">⚠ Termo Entrega</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">11467</td>
+                                <td class="project-name">VICK SAFRA</td>
+                                <td class="project-scope">Cobertura de Pele de Vidro</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td><div class="progress-bar"><div class="progress-fill low" style="width: 1%;">0%</div></div></td>
+                                <td><span class="status-badge nao-iniciado">⚠ Não Iniciado</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">12620</td>
+                                <td class="project-name">CPTM</td>
+                                <td class="project-scope">Portas Variadas</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-90-99">98%</td>
+                                <td><div class="progress-bar"><div class="progress-fill high" style="width: 100%;">100%</div></div></td>
+                                <td><span class="status-badge alto">⚠ Termo Entrega</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">13277</td>
+                                <td class="project-name">JANDIRA</td>
+                                <td class="project-scope">Portas Variadas</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-60-79">60%</td>
+                                <td class="phase-cell phase-60-79">60%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td><div class="progress-bar"><div class="progress-fill medium" style="width: 64%;">64%</div></div></td>
+                                <td><span class="status-badge medio">Médio</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">13945</td>
+                                <td class="project-name">TOLEDO FERRARI - HELBOR</td>
+                                <td class="project-scope">Fachada Spider</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td><div class="progress-bar"><div class="progress-fill low" style="width: 1%;">0%</div></div></td>
+                                <td><span class="status-badge nao-iniciado">⚠ Não Iniciado</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">N/A</td>
+                                <td class="project-name">MSC - MANUTENÇÃO</td>
+                                <td class="project-scope">Cobertura</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td><div class="progress-bar"><div class="progress-fill low" style="width: 1%;">0%</div></div></td>
+                                <td><span class="status-badge nao-iniciado">⚠ Não Iniciado</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">12622</td>
+                                <td class="project-name">ROGÉRIO PEREZ</td>
+                                <td class="project-scope">Guarda Corpo</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-80-89">80%</td>
+                                <td class="phase-cell phase-80-89">80%</td>
+                                <td class="phase-cell phase-80-89">80%</td>
+                                <td class="phase-cell phase-0">0%</td>
+                                <td><div class="progress-bar"><div class="progress-fill medium" style="width: 68%;">68%</div></div></td>
+                                <td><span class="status-badge medio">Médio</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">N/A</td>
+                                <td class="project-name" style="color: #64748b;">MANUTENÇÃO VINICIUS</td>
+                                <td class="project-scope" style="color: #64748b;">Sem Informações</td>
+                                <td class="phase-cell phase-na">N/A</td>
+                                <td class="phase-cell phase-na">N/A</td>
+                                <td class="phase-cell phase-na">N/A</td>
+                                <td class="phase-cell phase-na">N/A</td>
+                                <td class="phase-cell phase-na">N/A</td>
+                                <td><div class="progress-bar"><div class="progress-fill low" style="width: 1%;">N/A</div></div></td>
+                                <td><span class="status-badge nao-iniciado">Sem Info</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">8996</td>
+                                <td class="project-name">SAFRA - 24º</td>
+                                <td class="project-scope">Divisórias</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-90-99">90%</td>
+                                <td class="phase-cell phase-90-99">90%</td>
+                                <td><div class="progress-bar"><div class="progress-fill high" style="width: 96%;">96%</div></div></td>
+                                <td><span class="status-badge alto">Alto</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">10973</td>
+                                <td class="project-name" style="color: #64748b;">SAFRA</td>
+                                <td class="project-scope" style="color: #64748b;">Sem Informações</td>
+                                <td class="phase-cell phase-na">N/A</td>
+                                <td class="phase-cell phase-na">N/A</td>
+                                <td class="phase-cell phase-na">N/A</td>
+                                <td class="phase-cell phase-na">N/A</td>
+                                <td class="phase-cell phase-na">N/A</td>
+                                <td><div class="progress-bar"><div class="progress-fill low" style="width: 1%;">N/A</div></div></td>
+                                <td><span class="status-badge nao-iniciado">Sem Info</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">9846</td>
+                                <td class="project-name" style="color: #64748b;">SAFRA - COMOTINI</td>
+                                <td class="project-scope" style="color: #64748b;">Sem Informações</td>
+                                <td class="phase-cell phase-na">N/A</td>
+                                <td class="phase-cell phase-na">N/A</td>
+                                <td class="phase-cell phase-na">N/A</td>
+                                <td class="phase-cell phase-na">N/A</td>
+                                <td class="phase-cell phase-na">N/A</td>
+                                <td><div class="progress-bar"><div class="progress-fill low" style="width: 1%;">N/A</div></div></td>
+                                <td><span class="status-badge nao-iniciado">Sem Info</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">8708/2 - 12508</td>
+                                <td class="project-name">ISMD MURO DE VIDRO</td>
+                                <td class="project-scope">Muro de Vidro</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-100">100%</td>
+                                <td class="phase-cell phase-90-99">90%</td>
+                                <td class="phase-cell phase-90-99">90%</td>
+                                <td class="phase-cell phase-90-99">90%</td>
+                                <td><div class="progress-bar"><div class="progress-fill high" style="width: 94%;">94%</div></div></td>
+                                <td><span class="status-badge alto">Alto</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">2298</td>
+                                <td class="project-name" style="color: #64748b;">VILLA LOBOS</td>
+                                <td class="project-scope" style="color: #64748b;">Sem Informações</td>
+                                <td class="phase-cell phase-na">N/A</td>
+                                <td class="phase-cell phase-na">N/A</td>
+                                <td class="phase-cell phase-na">N/A</td>
+                                <td class="phase-cell phase-na">N/A</td>
+                                <td class="phase-cell phase-na">N/A</td>
+                                <td><div class="progress-bar"><div class="progress-fill low" style="width: 1%;">N/A</div></div></td>
+                                <td><span class="status-badge nao-iniciado">Sem Info</span></td>
+                            </tr>
+                            <tr>
+                                <td class="project-code">8025</td>
+                                <td class="project-name" style="color: #64748b;">SHOPPING ABC</td>
+                                <td class="project-scope" style="color: #64748b;">Sem Informações</td>
+                                <td class="phase-cell phase-na">N/A</td>
+                                <td class="phase-cell phase-na">N/A</td>
+                                <td class="phase-cell phase-na">N/A</td>
+                                <td class="phase-cell phase-na">N/A</td>
+                                <td class="phase-cell phase-na">N/A</td>
+                                <td><div class="progress-bar"><div class="progress-fill low" style="width: 1%;">N/A</div></div></td>
+                                <td><span class="status-badge nao-iniciado">Sem Info</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="alert-box">
+                    <h3>⚠️ Projetos Críticos Necessitando Atenção Imediata</h3>
+                    <ul>
+                        <li><strong>Shopping Tijuca (WV 11902)</strong> - 84% concluído - Prazo: 25/12/2025 - Mobilização 100% completa, demais fases em 80%</li>
+                        <li><strong>Golf Club (WV 7997)</strong> - 36% concluído - Mobilização 100% completa, demais fases paralisadas em 20%</li>
+                        <li><strong>Mato Grosso - Campo Grande Fase 02 (WV 12021)</strong> - 21% concluído - Estrutura em 3%, vidros/acessórios/encerramento não iniciados</li>
+                    </ul>
+                </div>
+
+                <div class="alert-box" style="background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%); border-color: rgba(251, 191, 36, 0.3); border-left-color: #f59e0b;">
+                    <h3 style="color: #fcd34d;">📋 Projetos Aguardando Termo de Entrega (98% Concluídos)</h3>
+                    <ul>
+                        <li><strong>CPTM (WV 12620)</strong> - Todas as fases 100% exceto Encerramento 98% - Falta gerar termo de entrega</li>
+                        <li><strong>TRANSKOTHE (WV 9943)</strong> - Todas as fases 100% exceto Encerramento 98% - Falta gerar termo de entrega</li>
+                        <li><strong>ISMD MURO DE VIDRO (WV 8708/2 - 12508)</strong> - Estrutura 100%, demais fases 90% - Priorizar finalização documentação</li>
+                    </ul>
+                </div>
+
+                <div class="info-box">
+                    <h3>📋 Insights e Observações Gerais</h3>
+                    <ul>
+                        <li><strong>3 projetos 100% concluídos</strong> com todas as fases finalizadas e termos de entrega gerados</li>
+                        <li><strong>3 projetos aguardando termo de entrega</strong> (CPTM, TRANSKOTHE, ISMD MURO) - execução física concluída, falta documentação final</li>
+                        <li><strong>5 projetos sem informações cadastradas</strong> (N/A, Safra Comotini, Villa Lobos, Shopping ABC, Manutenção Vinicius) - requerem atualização urgente</li>
+                        <li><strong>Shopping Tijuca</strong> destacado como crítico devido ao prazo de entrega próximo (25/12/2025) - 16 dias restantes</li>
+                        <li>Progresso médio geral de <strong>84%</strong> - performance satisfatória no pipeline de projetos</li>
+                        <li><strong>6 obras não iniciadas</strong> aguardando mobilização - avaliar priorização e recursos</li>
+                        <li><strong>16 projetos em execução ativa</strong> com diferentes níveis de progresso - maioria acima de 80%</li>
+                        <li><strong>Fase de Mobilização</strong> apresenta melhor performance (89%) - processos iniciais bem estruturados</li>
+                        <li><strong>Fases de Encerramento</strong> (78%) apresentam maior oportunidade de melhoria - revisar processos de finalização e geração de termos</li>
+                        <li><strong>Gargalo identificado:</strong> Geração de termos de entrega está atrasando conclusão formal de 3 projetos já finalizados fisicamente</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer">
+                <p><strong>SANGLASS Engenharia</strong> | Dashboard Executivo de Gestão de Obras</p>
+                <p>Documento gerado automaticamente - Revisão 07 | Sistema de Controle de Fases e Entregas</p>
+                <p style="margin-top: 12px; font-size: 0.8em; color: #475569;">
+                    Referência: rev07_GESTÃO_A_VISTA_-_OBRAS.pdf | Última atualização: 10/12/2025
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
